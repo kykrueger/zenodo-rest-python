@@ -13,12 +13,12 @@ def read(filename):
 
 
 setup(
-    name="zenodo",
-    version="0.0.0",
+    name="zenodo-rest",
+    version="0.0.0a0",
     url="https://github.com/kykrueger/zenodo_py.git",
     license="MIT",
     author="Kyle Krueger",
-    author_email="NA",
+    author_email="kyle.s.krueger@gmail.com",
     description=(
         "A python wrapper of Zenodo's REST API",
         "for python and the command line.",
