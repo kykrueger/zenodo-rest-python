@@ -6,7 +6,7 @@ import click
 import requests
 from dotenv import load_dotenv
 
-from zenodo.depositions.deposition import Deposition
+from zenodo.entities.deposition import Deposition
 
 load_dotenv()
 
@@ -46,7 +46,7 @@ def get(
     sort: Optional[str] = None,
     page: Optional[str] = None,
     size: Optional[int] = None,
-    all_versions: Optional[str] = None,
+    all_versions: bool = None,
     silent: bool = True,
     token: Optional[str] = None,
 ) -> list[Deposition]:
@@ -55,7 +55,16 @@ def get(
 
     base_url = os.getenv("ZENODO_URL")
     header = {"Authorization": f"Bearer {token}"}
-    response = requests.get(f"{base_url}/api/deposit/depositions", headers=header)
+    params: dict = {}
+    if query is not None:
+        params['q'] = query
+    if status is not None:
+        params['status'] = status
+    if sort is not None:
+        params['sort'] = sort
+    if all_versions:
+        params['all_versions'] = 'true'
+    response = requests.get(f"{base_url}/api/deposit/depositions", headers=header, params=params)
     if not silent:
         json_response = json.dumps(response.json(), indent=4)
         click.echo(json_response)

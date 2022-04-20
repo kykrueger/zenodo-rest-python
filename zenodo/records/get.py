@@ -6,7 +6,7 @@ import click
 import requests
 from dotenv import load_dotenv
 
-from zenodo.records.record import Record
+from zenodo.entities.record import Record
 
 load_dotenv()
 

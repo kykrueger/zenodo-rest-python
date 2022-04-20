@@ -6,7 +6,7 @@ import click
 import requests
 from dotenv import load_dotenv
 
-from zenodo.depositions.deposition import Deposition
+from zenodo.entities.deposition import Deposition
 from zenodo.entities.metadata import Metadata
 
 load_dotenv()
@@ -25,14 +25,6 @@ load_dotenv()
     help="Prereserve a DOI (not pushed to Datacite until deposition is published).",
 )
 @click.option("--silent", default=False, help="Don't print any output")
-@click.option(
-    "--token",
-    prompt=True,
-    prompt_required=False,
-    hide_input=True,
-    show_default="ENVVAR: 'ZENODO_TOKEN'",
-    help="Required when the envvar is not set.",
-)
 def create(
     metadata: Union[str, Metadata, None] = Metadata(),
     metadata_file: Optional[str] = None,
