@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from typing import Optional
 
-from zenodo.entities.zenodo_file import ZenodoFile
+from zenodo_rest.entities.zenodo_file import ZenodoFile
 
 
 @dataclass

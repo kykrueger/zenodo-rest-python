@@ -14,8 +14,8 @@ def read(filename):
 
 setup(
     name="zenodo-rest",
-    version="0.0.0b1",
-    py_modules=["cli"],
+    version="0.0.0b2",
+    py_modules=["zenodo_rest"],
     url="https://github.com/kykrueger/zenodo-rest-python.git",
     license="MIT",
     author="Kyle Krueger",
@@ -37,7 +37,7 @@ setup(
     ],
     entry_points={
         "console_scripts": [
-            "zenodo-rest = zenodo.cli:cli",
+            "zenodo-rest = zenodo_rest.cli:cli",
         ],
     },
 )

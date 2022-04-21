@@ -4,9 +4,9 @@ from typing import Optional
 
 import requests
 
-from zenodo.entities.metadata import Metadata
-from zenodo.entities.deposition import Deposition
-from zenodo.entities.bucket_file import BucketFile
+from zenodo_rest.entities.metadata import Metadata
+from zenodo_rest.entities.deposition import Deposition
+from zenodo_rest.entities.bucket_file import BucketFile
 
 
 def create(
@@ -38,28 +38,16 @@ def create(
 
 
 def retrieve(
-        deposition_id: int, token: Optional[str] = None, base_url: Optional[str] = None
+        deposition_id: str, token: Optional[str] = None, base_url: Optional[str] = None
 ) -> Deposition:
-    if token is None:
-        token = os.getenv("ZENODO_TOKEN")
-    if base_url is None:
-        base_url = os.getenv("ZENODO_URL")
-    header = {"Authorization": f"Bearer {token}", "Accept": "application/json"}
-
-    response = requests.get(
-        f"{base_url}/api/deposit/depositions/{deposition_id}",
-        headers=header,
-    )
-
-    response.raise_for_status()
-    return Deposition.parse_obj(response.json())
+    return Deposition.retrieve(deposition_id, token, base_url)
 
 
 def upload_file(
-        deposition_id: int, path_to_file: str, token: Optional[str] = None
+        deposition_id: str, path_to_file: str, token: Optional[str] = None
 ) -> BucketFile:
     deposition: Deposition = retrieve(deposition_id)
-    bucket_url = deposition.links["bucket"]
+    bucket_url = deposition.get_bucket()
     if token is None:
         token = os.getenv("ZENODO_TOKEN")
     path = Path(path_to_file)
@@ -75,7 +63,7 @@ def upload_file(
 
 
 def update_metadata(
-        deposition_id: int,
+        deposition_id: str,
         metadata: Metadata,
         token: Optional[str] = None,
         base_url: Optional[str] = None,
@@ -97,7 +85,7 @@ def update_metadata(
 
 
 def delete_remote(
-        deposition_id: int, token: Optional[str] = None, base_url: Optional[str] = None
+        deposition_id: str, token: Optional[str] = None, base_url: Optional[str] = None
 ) -> requests.Response:
     if token is None:
         token = os.getenv("ZENODO_TOKEN")
@@ -117,7 +105,7 @@ def delete_remote(
 
 
 def publish(
-        deposition_id: int, token: Optional[str] = None, base_url: Optional[str] = None
+        deposition_id: str, token: Optional[str] = None, base_url: Optional[str] = None
 ) -> Deposition:
     if token is None:
         token = os.getenv("ZENODO_TOKEN")
@@ -137,7 +125,7 @@ def publish(
 
 
 def new_version(
-        deposition_id: int, token: Optional[str] = None, base_url: Optional[str] = None
+        deposition_id: str, token: Optional[str] = None, base_url: Optional[str] = None
 ) -> Deposition:
     if token is None:
         token = os.getenv("ZENODO_TOKEN", token)
@@ -153,7 +141,8 @@ def new_version(
     )
 
     response.raise_for_status()
-    return Deposition.parse_obj(response.json())
+    deposition: Deposition = Deposition.parse_obj(response.json())
+    return deposition
 
 
 def search(

@@ -1,12 +1,10 @@
-import os
-import sys
 from typing import Optional
 
 import click
 from requests import Response
 
-from zenodo.entities import Deposition, Metadata
-from zenodo.entities.bucket_file import BucketFile
+from zenodo_rest.entities import Deposition, Metadata
+from zenodo_rest.entities.bucket_file import BucketFile
 
 from . import actions
 
@@ -126,6 +124,8 @@ def update(
     """
 
     deposition: Deposition = Deposition.parse_file(deposition_json)
+    deposition = deposition.get_latest()
+    deposition = deposition.get_latest_draft()
     metadata = Metadata.parse_file(metadata_file)
 
     deposition = actions.update_metadata(deposition.id, metadata)
@@ -146,6 +146,8 @@ def delete(
     """
 
     deposition: Deposition = Deposition.parse_file(deposition_json)
+    deposition = deposition.get_latest()
+    deposition = deposition.get_latest_draft()
     response: Response = actions.delete_remote(deposition.id)
     json_response = response.json(exclude_none=True, indent=4)
     click.echo(json_response)
@@ -170,6 +172,8 @@ def upload_file(
     FILE the path to a file to be uploaded
     """
     deposition: Deposition = Deposition.parse_file(deposition_json)
+    deposition = deposition.get_latest()
+    deposition = deposition.get_latest_draft()
     bucket_file: BucketFile = actions.upload_file(deposition.id, file)
     json_response = bucket_file.json(exclude_none=True, indent=4)
     click.echo(json_response)
@@ -190,6 +194,8 @@ def publish(
     """
 
     deposition: Deposition = Deposition.parse_file(deposition_json)
+    deposition = deposition.get_latest()
+    deposition = deposition.get_latest_draft()
     deposition = actions.publish(deposition.id)
     json_response = deposition.json(exclude_none=True, indent=4)
     click.echo(json_response)
@@ -214,10 +220,71 @@ def new_version(
     """
 
     deposition: Deposition = Deposition.parse_file(deposition_json)
-    deposition = new_version(deposition.id)
+    deposition = deposition.get_latest()
+    deposition = actions.new_version(deposition.id)
     json_response = deposition.json(exclude_none=True, indent=4)
     click.echo(json_response)
     if dest is None:
         return
     with open(dest, 'w', encoding='utf-8') as f:
         f.write(json_response)
+
+
+@depositions.group()
+def doi():
+    """Get DOIs related to depositions"""
+    pass
+
+
+@doi.command()
+@click.argument("deposition-json",
+                type=click.Path(exists=True, file_okay=True, dir_okay=False),
+                )
+@click.option(
+    "--full-url", "-f",
+    is_flag=True,
+    help="Return the full url of the latest draft's DOI",
+)
+def latest(
+        deposition_json: str,
+        full_url: bool,
+):
+    """Print the doi of the latest published version of the given deposition.
+
+    DEPOSITION_JSON json representation of the deposition
+    """
+
+    deposition: Deposition = Deposition.parse_file(deposition_json)
+    deposition = deposition.get_latest()
+    if full_url:
+        click.echo(deposition.doi_url)
+    else:
+        click.echo(deposition.doi)
+
+
+@doi.command()
+@click.argument("deposition-json",
+                type=click.Path(exists=True, file_okay=True, dir_okay=False),
+                )
+@click.option(
+    "--full-url", "-f",
+    is_flag=True,
+    help="Return the full url of the latest draft's DOI",
+)
+def latest_draft(
+        deposition_json: str,
+        full_url: bool,
+):
+    """Print the DOI of the latest related deposition draft
+
+    DEPOSITION_JSON json representation of the deposition
+    """
+
+    deposition: Deposition = Deposition.parse_file(deposition_json)
+    deposition = deposition.get_latest()
+    deposition = deposition.get_latest_draft()
+    if full_url:
+        click.echo(deposition.doi_url)
+    else:
+        click.echo(deposition.doi)
+

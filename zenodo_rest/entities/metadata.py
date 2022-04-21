@@ -4,13 +4,13 @@ from typing import Optional, Union
 
 from pydantic import BaseModel
 
-from zenodo.entities.community import Community
-from zenodo.entities.creator import Contributor, Creator
-from zenodo.entities.date_interval import DateInterval
-from zenodo.entities.doi import Doi
-from zenodo.entities.grant import Grant
-from zenodo.entities.location import Location
-from zenodo.entities.subject import Subject
+from zenodo_rest.entities.community import Community
+from zenodo_rest.entities.creator import Contributor, Creator
+from zenodo_rest.entities.date_interval import DateInterval
+from zenodo_rest.entities.doi import Doi
+from zenodo_rest.entities.grant import Grant
+from zenodo_rest.entities.location import Location
+from zenodo_rest.entities.subject import Subject
 
 
 class UploadType(str, Enum):
