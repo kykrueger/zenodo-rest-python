@@ -14,7 +14,7 @@ def read(filename):
 
 setup(
     name="zenodo-rest",
-    version="0.0.0b0",
+    version="0.0.0b1",
     py_modules=["cli"],
     url="https://github.com/kykrueger/zenodo-rest-python.git",
     license="MIT",
