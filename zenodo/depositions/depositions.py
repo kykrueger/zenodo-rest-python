@@ -1,13 +1,14 @@
-import json
 import os
+import sys
 from typing import Optional
 
 import click
 from requests import Response
 
 from zenodo.entities import Deposition, Metadata
+from zenodo.entities.bucket_file import BucketFile
 
-from .search import search
+from . import actions
 
 
 @click.group()
@@ -27,10 +28,12 @@ def depositions():
     is_flag=True,
     help="Prereserve a DOI (not pushed to Datacite until deposition is published).",
 )
+@click.option("--dest", type=click.Path(), help="A file to write the resulting deposition json representation to.")
 def create(
     metadata: Optional[str] = None,
     metadata_file: Optional[str] = None,
     prereserve_doi: Optional[bool] = None,
+    dest: Optional[str] = None,
 ):
 
     metadata_parsed: Metadata = Metadata()
@@ -42,23 +45,30 @@ def create(
     if metadata_file is not None:
         metadata_parsed = Metadata.parse_file(metadata_file)
 
-    deposition: Deposition = Deposition.create(metadata_parsed, prereserve_doi)
-    if not os.getenv("ZENODO_SILENT"):
-        json_response = deposition.json(exclude_none=True, indent=4)
-        click.echo(json_response)
+    deposition: Deposition = actions.create(metadata_parsed, prereserve_doi)
+    json_response = deposition.json(exclude_none=True, indent=4)
+    click.echo(json_response)
+    if dest is None:
+        return
+    with click.open_file(dest, 'w') as f:
+        f.write(json_response)
 
 
 @depositions.command()
 @click.argument("deposition-id", type=click.INT)
-def retrieve(deposition_id: int):
+@click.option("--dest", type=click.Path(), help="A file to write the resulting deposition json representation to.")
+def retrieve(deposition_id: int, dest: Optional[str] = None):
     """Retrieve deposition by ID from server.
 
     DEPOSITION-ID is the id of the deposition to be fetched
     """
-    deposition: Deposition = Deposition.retrieve(deposition_id)
-    if not os.getenv("ZENODO_SILENT"):
-        json_response = deposition.json(exclude_none=True, indent=4)
-        click.echo(json_response)
+    deposition: Deposition = actions.retrieve(deposition_id)
+    json_response = deposition.json(exclude_none=True, indent=4)
+    click.echo(json_response)
+    if dest is None:
+        return
+    with click.open_file(dest, 'w') as f:
+        f.write(json_response)
 
 
 @depositions.command("list")
@@ -90,71 +100,124 @@ def search_depositions(
     all_versions: bool = None,
 ):
     result: list[Deposition]
-    result = search(query, status, sort, page, size, all_versions)
-    if not os.getenv("ZENODO_SILENT"):
-        for x in result:
-            click.echo(x.json(exclude_none=True, indent=2))
+    result = actions.search(query, status, sort, page, size, all_versions)
+    for x in result:
+        click.echo(x.json(exclude_none=True, indent=2))
 
 
 @depositions.command()
-@click.argument("deposition_id", type=click.INT)
+@click.argument("deposition-json",
+                type=click.Path(exists=True, file_okay=True, dir_okay=False),
+                )
 @click.argument(
     "metadata_file",
     type=click.Path(exists=True, file_okay=True, dir_okay=False),
 )
 def update(
-    deposition_id: int,
+    deposition_json: str,
     metadata_file: str,
 ):
     """Update metadata for a not yet published deposition
 
-    DEPOSITION_ID the id of the deposition to be updated
+    DEPOSITION_JSON the file with a json representation
+    of the deposition to be updated
 
     METADATA_FILE the path to a metadata json file to be used as input
     """
 
+    deposition: Deposition = Deposition.parse_file(deposition_json)
     metadata = Metadata.parse_file(metadata_file)
 
-    deposition: Deposition = Deposition.static_update_metadata(deposition_id, metadata)
-    if not os.getenv("ZENODO_SILENT"):
-        json_response = deposition.json(exclude_none=True, indent=4)
-        click.echo(json_response)
+    deposition = actions.update_metadata(deposition.id, metadata)
+    json_response = deposition.json(exclude_none=True, indent=4)
+    click.echo(json_response)
 
 
 @depositions.command()
-@click.argument("deposition_id", type=click.INT)
+@click.argument("deposition-json",
+                type=click.Path(exists=True, file_okay=True, dir_okay=False),
+                )
 def delete(
-    deposition_id: int,
+    deposition_json: str,
 ):
     """Delete a not yet published deposition
 
-    DEPOSITION_ID the id of the deposition to be deleted
+    DEPOSITION_JSON json representation of the deposition to be deleted
     """
 
-    deposition: Response = Deposition.static_delete_remote(deposition_id)
-    if not os.getenv("ZENODO_SILENT"):
-        json_response = deposition.json(exclude_none=True, indent=4)
-        click.echo(json_response)
+    deposition: Deposition = Deposition.parse_file(deposition_json)
+    response: Response = actions.delete_remote(deposition.id)
+    json_response = response.json(exclude_none=True, indent=4)
+    click.echo(json_response)
 
 
 @depositions.command()
-@click.argument("deposition_id", type=click.INT)
+@click.argument("deposition-json",
+                type=click.Path(exists=True, file_okay=True, dir_okay=False),
+                )
 @click.argument(
     "file",
     type=click.Path(exists=True, file_okay=True, dir_okay=False),
 )
 def upload_file(
-    deposition_id: int,
+    deposition_json: str,
     file: str,
 ):
     """Upload a file to the bucket of a not yet published deposition
 
-    DEPOSITION_ID the id of the deposition to upload to
+    DEPOSITION_JSON json representation of the deposition to be uploaded to.
 
     FILE the path to a file to be uploaded
     """
-    deposition: Deposition = Deposition.retrieve(deposition_id)
-    response = deposition.upload_file(file)
-    if not os.getenv("ZENODO_SILENT"):
-        json_response = json.dumps(response.json(), indent=4)
-        click.echo(json_response)
+    deposition: Deposition = Deposition.parse_file(deposition_json)
+    bucket_file: BucketFile = actions.upload_file(deposition.id, file)
+    json_response = bucket_file.json(exclude_none=True, indent=4)
+    click.echo(json_response)
+
+
+@depositions.command()
+@click.argument("deposition-json",
+                type=click.Path(exists=True, file_okay=True, dir_okay=False),
+                )
+@click.option("--dest", type=click.Path(), help="A file to write the resulting deposition json representation to.")
+def publish(
+        deposition_json: str,
+        dest: Optional[str] = None,
+):
+    """Publish a pending deposition
+
+    DEPOSITION_JSON json representation of the deposition to be published
+    """
+
+    deposition: Deposition = Deposition.parse_file(deposition_json)
+    deposition = actions.publish(deposition.id)
+    json_response = deposition.json(exclude_none=True, indent=4)
+    click.echo(json_response)
+    if dest is None:
+        return
+    with open(dest, 'w', encoding='utf-8') as f:
+        f.write(json_response)
+
+
+@depositions.command()
+@click.argument("deposition-json",
+                type=click.Path(exists=True, file_okay=True, dir_okay=False),
+                )
+@click.option("--dest", type=click.Path(), help="A file to write the resulting deposition json representation to.")
+def new_version(
+        deposition_json: str,
+        dest: Optional[str] = None
+):
+    """Create a new version of a published disposition
+
+    DEPOSITION_JSON json representation of the deposition to be published
+    """
+
+    deposition: Deposition = Deposition.parse_file(deposition_json)
+    deposition = new_version(deposition.id)
+    json_response = deposition.json(exclude_none=True, indent=4)
+    click.echo(json_response)
+    if dest is None:
+        return
+    with open(dest, 'w', encoding='utf-8') as f:
+        f.write(json_response)

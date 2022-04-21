@@ -1,3 +1,3 @@
-from .search import search
+from . import actions
 
-__all__: list[str] = ["search"]
+__all__: list[str] = ["actions"]
