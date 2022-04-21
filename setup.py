@@ -16,7 +16,7 @@ setup(
     name="zenodo-rest",
     version="0.0.0b0",
     py_modules=["cli"],
-    url="https://github.com/kykrueger/zenodo_py.git",
+    url="https://github.com/kykrueger/zenodo-rest-python.git",
     license="MIT",
     author="Kyle Krueger",
     author_email="kyle.s.krueger@gmail.com",
