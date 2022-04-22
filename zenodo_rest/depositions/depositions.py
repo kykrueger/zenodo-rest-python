@@ -1,4 +1,5 @@
 from typing import Optional
+import os
 
 import click
 from requests import Response
@@ -48,7 +49,8 @@ def create(
     click.echo(json_response)
     if dest is None:
         return
-    with click.open_file(dest, 'w') as f:
+    os.makedirs(os.path.dirname(dest), exist_ok=True)
+    with open(dest, 'w', encoding='utf-8') as f:
         f.write(json_response)
 
 
@@ -65,7 +67,8 @@ def retrieve(deposition_id: int, dest: Optional[str] = None):
     click.echo(json_response)
     if dest is None:
         return
-    with click.open_file(dest, 'w') as f:
+    os.makedirs(os.path.dirname(dest), exist_ok=True)
+    with open(dest, 'w', encoding='utf-8') as f:
         f.write(json_response)
 
 
@@ -201,6 +204,7 @@ def publish(
     click.echo(json_response)
     if dest is None:
         return
+    os.makedirs(os.path.dirname(dest), exist_ok=True)
     with open(dest, 'w', encoding='utf-8') as f:
         f.write(json_response)
 
@@ -226,6 +230,7 @@ def new_version(
     click.echo(json_response)
     if dest is None:
         return
+    os.makedirs(os.path.dirname(dest), exist_ok=True)
     with open(dest, 'w', encoding='utf-8') as f:
         f.write(json_response)
 
