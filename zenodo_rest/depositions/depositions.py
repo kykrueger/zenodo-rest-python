@@ -27,7 +27,7 @@ def depositions():
     is_flag=True,
     help="Prereserve a DOI (not pushed to Datacite until deposition is published).",
 )
-@click.option("--dest", type=click.Path(), help="A file to write the resulting deposition json representation to.")
+@click.option("--dest", type=click.Path(), default=None, help="A file to write the resulting deposition json representation to.")
 def create(
     metadata: Optional[str] = None,
     metadata_file: Optional[str] = None,
@@ -49,14 +49,15 @@ def create(
     click.echo(json_response)
     if dest is None:
         return
-    os.makedirs(os.path.dirname(dest), exist_ok=True)
+    if len(os.path.dirname(dest)) > 0:
+        os.makedirs(os.path.dirname(dest), exist_ok=True)
     with open(dest, 'w', encoding='utf-8') as f:
         f.write(json_response)
 
 
 @depositions.command()
 @click.argument("deposition-id", type=click.INT)
-@click.option("--dest", type=click.Path(), help="A file to write the resulting deposition json representation to.")
+@click.option("--dest", type=click.Path(), default=None, help="A file to write the resulting deposition json representation to.")
 def retrieve(deposition_id: int, dest: Optional[str] = None):
     """Retrieve deposition by ID from server.
 
@@ -67,7 +68,8 @@ def retrieve(deposition_id: int, dest: Optional[str] = None):
     click.echo(json_response)
     if dest is None:
         return
-    os.makedirs(os.path.dirname(dest), exist_ok=True)
+    if len(os.path.dirname(dest)) > 0:
+        os.makedirs(os.path.dirname(dest), exist_ok=True)
     with open(dest, 'w', encoding='utf-8') as f:
         f.write(json_response)
 
@@ -186,7 +188,7 @@ def upload_file(
 @click.argument("deposition-json",
                 type=click.Path(exists=True, file_okay=True, dir_okay=False),
                 )
-@click.option("--dest", type=click.Path(), help="A file to write the resulting deposition json representation to.")
+@click.option("--dest", type=click.Path(), default=None, help="A file to write the resulting deposition json representation to.")
 def publish(
         deposition_json: str,
         dest: Optional[str] = None,
@@ -204,7 +206,8 @@ def publish(
     click.echo(json_response)
     if dest is None:
         return
-    os.makedirs(os.path.dirname(dest), exist_ok=True)
+    if len(os.path.dirname(dest)) > 0:
+        os.makedirs(os.path.dirname(dest), exist_ok=True)
     with open(dest, 'w', encoding='utf-8') as f:
         f.write(json_response)
 
@@ -213,7 +216,7 @@ def publish(
 @click.argument("deposition-json",
                 type=click.Path(exists=True, file_okay=True, dir_okay=False),
                 )
-@click.option("--dest", type=click.Path(), help="A file to write the resulting deposition json representation to.")
+@click.option("--dest", type=click.Path(), default=None, help="A file to write the resulting deposition json representation to.")
 def new_version(
         deposition_json: str,
         dest: Optional[str] = None
@@ -230,7 +233,8 @@ def new_version(
     click.echo(json_response)
     if dest is None:
         return
-    os.makedirs(os.path.dirname(dest), exist_ok=True)
+    if len(os.path.dirname(dest)) > 0:
+        os.makedirs(os.path.dirname(dest), exist_ok=True)
     with open(dest, 'w', encoding='utf-8') as f:
         f.write(json_response)
 
