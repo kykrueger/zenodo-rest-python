@@ -44,28 +44,23 @@ class Deposition(BaseModel):
         response.raise_for_status()
         return Deposition.parse_obj(response.json())
 
+    def refresh(self, token: str = None) -> Optional[T]:
+        return Deposition.retrieve(self.id, token)
+
     def get_latest(self, token: str = None) -> Optional[T]:
-        latest_url = self.links.get("latest", None)
+
+        deposition: Deposition = self.refresh(token)
+        latest_url = deposition.links.get("latest", None)
         if latest_url is None:
-            return self
-
-        if token is None:
-            token = os.getenv("ZENODO_TOKEN")
-
-        header = {"Authorization": f"Bearer {token}", "Accept": "application/json"}
-        response = requests.get(
-            latest_url,
-            headers=header,
-        )
-
-        response.raise_for_status()
-        record = Deposition.parse_obj(response.json())
-        return Deposition.retrieve(record.id)
+            return None
+        latest_id = latest_url.rsplit('/', 1)[1]
+        return Deposition.retrieve(latest_id)
 
     def get_latest_draft(self, token: str = None) -> Optional[T]:
-        latest_draft_url = self.links.get("latest_draft", None)
+        deposition: Deposition = self.refresh(token)
+        latest_draft_url = deposition.links.get("latest_draft", None)
         if latest_draft_url is None:
-            return self
+            return None
 
         if token is None:
             token = os.getenv("ZENODO_TOKEN")

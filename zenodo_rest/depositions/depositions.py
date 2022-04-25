@@ -4,6 +4,7 @@ import os
 import click
 from requests import Response
 
+from zenodo_rest.exceptions import NoDraftFound
 from zenodo_rest.entities import Deposition, Metadata
 from zenodo_rest.entities.bucket_file import BucketFile
 
@@ -290,10 +291,11 @@ def latest_draft(
     """
 
     deposition: Deposition = Deposition.parse_file(deposition_json)
-    deposition = deposition.get_latest()
-    deposition = deposition.get_latest_draft()
+    draft: Deposition = deposition.get_latest_draft()
+    if draft is None:
+        raise NoDraftFound(deposition)
     if full_url:
-        click.echo(deposition.doi_url)
+        click.echo(draft.doi_url)
     else:
-        click.echo(deposition.doi)
+        click.echo(draft.doi)
 
