@@ -1,5 +1,7 @@
 import os
+from shutil import make_archive
 from pathlib import Path
+import tempfile
 from typing import Optional
 
 import requests
@@ -44,20 +46,38 @@ def retrieve(
 
 
 def upload_file(
-        deposition_id: str, path_to_file: str, token: Optional[str] = None
+        deposition_id: str, path_or_file: str, token: Optional[str] = None
 ) -> BucketFile:
+    """
+
+    :param deposition_id:
+    :param path_or_file: pass a path to zip and upload or a file_path to upload
+    :param token:
+    :return:
+    """
     deposition: Deposition = retrieve(deposition_id)
     bucket_url = deposition.get_bucket()
     if token is None:
         token = os.getenv("ZENODO_TOKEN")
-    path = Path(path_to_file)
+    path = Path(path_or_file)
+    tempdir = None
+    if path.is_dir():
+        tempdir = tempfile.TemporaryDirectory()
+        zip_file = os.path.join(tempdir.name, path.stem)
+        make_archive(zip_file, "zip", root_dir=path.absolute())
+        path = Path(f"{zip_file}.zip")
+
+
     header = {"Authorization": f"Bearer {token}"}
-    with open(path_to_file, "rb") as fp:
+    with open(path.absolute(), "rb") as fp:
         r = requests.put(
             f"{bucket_url}/{path.name}",
             data=fp,
             headers=header,
         )
+
+    if tempdir is not None:
+        tempdir.cleanup()
     r.raise_for_status()
     return BucketFile.parse_obj(r.json())
 

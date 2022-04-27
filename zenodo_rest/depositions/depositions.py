@@ -165,7 +165,7 @@ def delete(
                 )
 @click.argument(
     "file",
-    type=click.Path(exists=True, file_okay=True, dir_okay=False),
+    type=click.Path(exists=True, file_okay=True, dir_okay=True),
 )
 def upload_file(
     deposition_json: str,
