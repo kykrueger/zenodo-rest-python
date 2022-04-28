@@ -2,7 +2,7 @@ from pydantic import BaseModel
 
 
 class BucketFile(BaseModel):
-    key: str # filename
+    key: str  # filename
     mimetype: str
     checksum: str
     version_id: str

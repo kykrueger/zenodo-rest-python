@@ -1,21 +1,21 @@
 import os
-from shutil import make_archive
-from pathlib import Path
 import tempfile
+from pathlib import Path
+from shutil import make_archive
 from typing import Optional
 
 import requests
 
-from zenodo_rest.entities.metadata import Metadata
-from zenodo_rest.entities.deposition import Deposition
 from zenodo_rest.entities.bucket_file import BucketFile
+from zenodo_rest.entities.deposition import Deposition
+from zenodo_rest.entities.metadata import Metadata
 
 
 def create(
-        metadata: Metadata = Metadata(),
-        prereserve_doi: Optional[bool] = None,
-        token: Optional[str] = None,
-        base_url: Optional[str] = None,
+    metadata: Metadata = Metadata(),
+    prereserve_doi: Optional[bool] = None,
+    token: Optional[str] = None,
+    base_url: Optional[str] = None,
 ) -> Deposition:
     """
     Create a deposition on the server, but do not publish it.
@@ -40,13 +40,13 @@ def create(
 
 
 def retrieve(
-        deposition_id: str, token: Optional[str] = None, base_url: Optional[str] = None
+    deposition_id: str, token: Optional[str] = None, base_url: Optional[str] = None
 ) -> Deposition:
     return Deposition.retrieve(deposition_id, token, base_url)
 
 
 def upload_file(
-        deposition_id: str, path_or_file: str, token: Optional[str] = None
+    deposition_id: str, path_or_file: str, token: Optional[str] = None
 ) -> BucketFile:
     """
 
@@ -67,7 +67,6 @@ def upload_file(
         make_archive(zip_file, "zip", root_dir=path.absolute())
         path = Path(f"{zip_file}.zip")
 
-
     header = {"Authorization": f"Bearer {token}"}
     with open(path.absolute(), "rb") as fp:
         r = requests.put(
@@ -83,10 +82,10 @@ def upload_file(
 
 
 def update_metadata(
-        deposition_id: str,
-        metadata: Metadata,
-        token: Optional[str] = None,
-        base_url: Optional[str] = None,
+    deposition_id: str,
+    metadata: Metadata,
+    token: Optional[str] = None,
+    base_url: Optional[str] = None,
 ) -> Deposition:
     if token is None:
         token = os.getenv("ZENODO_TOKEN")
@@ -105,7 +104,7 @@ def update_metadata(
 
 
 def delete_remote(
-        deposition_id: str, token: Optional[str] = None, base_url: Optional[str] = None
+    deposition_id: str, token: Optional[str] = None, base_url: Optional[str] = None
 ) -> requests.Response:
     if token is None:
         token = os.getenv("ZENODO_TOKEN")
@@ -125,7 +124,7 @@ def delete_remote(
 
 
 def publish(
-        deposition_id: str, token: Optional[str] = None, base_url: Optional[str] = None
+    deposition_id: str, token: Optional[str] = None, base_url: Optional[str] = None
 ) -> Deposition:
     if token is None:
         token = os.getenv("ZENODO_TOKEN")
@@ -145,7 +144,7 @@ def publish(
 
 
 def new_version(
-        deposition_id: str, token: Optional[str] = None, base_url: Optional[str] = None
+    deposition_id: str, token: Optional[str] = None, base_url: Optional[str] = None
 ) -> Deposition:
     if token is None:
         token = os.getenv("ZENODO_TOKEN", token)
@@ -166,13 +165,13 @@ def new_version(
 
 
 def search(
-        query: Optional[str] = None,
-        status: Optional[str] = None,
-        sort: Optional[str] = None,
-        page: Optional[str] = None,
-        size: Optional[int] = None,
-        all_versions: Optional[bool] = None,
-        token: Optional[str] = None,
+    query: Optional[str] = None,
+    status: Optional[str] = None,
+    sort: Optional[str] = None,
+    page: Optional[str] = None,
+    size: Optional[int] = None,
+    all_versions: Optional[bool] = None,
+    token: Optional[str] = None,
 ) -> list[Deposition]:
 
     if token is None:

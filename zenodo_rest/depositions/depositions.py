@@ -1,12 +1,12 @@
-from typing import Optional
 import os
+from typing import Optional
 
 import click
 from requests import Response
 
-from zenodo_rest.exceptions import NoDraftFound
 from zenodo_rest.entities import Deposition, Metadata
 from zenodo_rest.entities.bucket_file import BucketFile
+from zenodo_rest.exceptions import NoDraftFound
 
 from . import actions
 
@@ -28,7 +28,12 @@ def depositions():
     is_flag=True,
     help="Prereserve a DOI (not pushed to Datacite until deposition is published).",
 )
-@click.option("--dest", type=click.Path(), default=None, help="A file to write the resulting deposition json representation to.")
+@click.option(
+    "--dest",
+    type=click.Path(),
+    default=None,
+    help="A file to write the resulting deposition json representation to.",
+)
 def create(
     metadata: Optional[str] = None,
     metadata_file: Optional[str] = None,
@@ -52,13 +57,18 @@ def create(
         return
     if len(os.path.dirname(dest)) > 0:
         os.makedirs(os.path.dirname(dest), exist_ok=True)
-    with open(dest, 'w', encoding='utf-8') as f:
+    with open(dest, "w", encoding="utf-8") as f:
         f.write(json_response)
 
 
 @depositions.command()
 @click.argument("deposition-id", type=click.INT)
-@click.option("--dest", type=click.Path(), default=None, help="A file to write the resulting deposition json representation to.")
+@click.option(
+    "--dest",
+    type=click.Path(),
+    default=None,
+    help="A file to write the resulting deposition json representation to.",
+)
 def retrieve(deposition_id: int, dest: Optional[str] = None):
     """Retrieve deposition by ID from server.
 
@@ -71,7 +81,7 @@ def retrieve(deposition_id: int, dest: Optional[str] = None):
         return
     if len(os.path.dirname(dest)) > 0:
         os.makedirs(os.path.dirname(dest), exist_ok=True)
-    with open(dest, 'w', encoding='utf-8') as f:
+    with open(dest, "w", encoding="utf-8") as f:
         f.write(json_response)
 
 
@@ -110,9 +120,10 @@ def search_depositions(
 
 
 @depositions.command()
-@click.argument("deposition-json",
-                type=click.Path(exists=True, file_okay=True, dir_okay=False),
-                )
+@click.argument(
+    "deposition-json",
+    type=click.Path(exists=True, file_okay=True, dir_okay=False),
+)
 @click.argument(
     "metadata_file",
     type=click.Path(exists=True, file_okay=True, dir_okay=False),
@@ -140,9 +151,10 @@ def update(
 
 
 @depositions.command()
-@click.argument("deposition-json",
-                type=click.Path(exists=True, file_okay=True, dir_okay=False),
-                )
+@click.argument(
+    "deposition-json",
+    type=click.Path(exists=True, file_okay=True, dir_okay=False),
+)
 def delete(
     deposition_json: str,
 ):
@@ -160,9 +172,10 @@ def delete(
 
 
 @depositions.command()
-@click.argument("deposition-json",
-                type=click.Path(exists=True, file_okay=True, dir_okay=False),
-                )
+@click.argument(
+    "deposition-json",
+    type=click.Path(exists=True, file_okay=True, dir_okay=False),
+)
 @click.argument(
     "file",
     type=click.Path(exists=True, file_okay=True, dir_okay=True),
@@ -186,13 +199,38 @@ def upload_file(
 
 
 @depositions.command()
-@click.argument("deposition-json",
-                type=click.Path(exists=True, file_okay=True, dir_okay=False),
-                )
-@click.option("--dest", type=click.Path(), default=None, help="A file to write the resulting deposition json representation to.")
+@click.argument(
+    "deposition-json",
+    type=click.Path(exists=True, file_okay=True, dir_okay=False),
+)
+def delete_files(
+    deposition_json: str,
+):
+    """Delete files from the bucket of a not yet published deposition
+
+    DEPOSITION_JSON json representation of the deposition to be uploaded to.
+    """
+    deposition: Deposition = Deposition.parse_file(deposition_json)
+    deposition = deposition.get_latest()
+    deposition = deposition.get_latest_draft()
+    responses = deposition.delete_files()
+    click.echo(responses)
+
+
+@depositions.command()
+@click.argument(
+    "deposition-json",
+    type=click.Path(exists=True, file_okay=True, dir_okay=False),
+)
+@click.option(
+    "--dest",
+    type=click.Path(),
+    default=None,
+    help="A file to write the resulting deposition json representation to.",
+)
 def publish(
-        deposition_json: str,
-        dest: Optional[str] = None,
+    deposition_json: str,
+    dest: Optional[str] = None,
 ):
     """Publish a pending deposition
 
@@ -209,19 +247,22 @@ def publish(
         return
     if len(os.path.dirname(dest)) > 0:
         os.makedirs(os.path.dirname(dest), exist_ok=True)
-    with open(dest, 'w', encoding='utf-8') as f:
+    with open(dest, "w", encoding="utf-8") as f:
         f.write(json_response)
 
 
 @depositions.command()
-@click.argument("deposition-json",
-                type=click.Path(exists=True, file_okay=True, dir_okay=False),
-                )
-@click.option("--dest", type=click.Path(), default=None, help="A file to write the resulting deposition json representation to.")
-def new_version(
-        deposition_json: str,
-        dest: Optional[str] = None
-):
+@click.argument(
+    "deposition-json",
+    type=click.Path(exists=True, file_okay=True, dir_okay=False),
+)
+@click.option(
+    "--dest",
+    type=click.Path(),
+    default=None,
+    help="A file to write the resulting deposition json representation to.",
+)
+def new_version(deposition_json: str, dest: Optional[str] = None):
     """Create a new version of a published disposition
 
     DEPOSITION_JSON json representation of the deposition to be published
@@ -236,7 +277,7 @@ def new_version(
         return
     if len(os.path.dirname(dest)) > 0:
         os.makedirs(os.path.dirname(dest), exist_ok=True)
-    with open(dest, 'w', encoding='utf-8') as f:
+    with open(dest, "w", encoding="utf-8") as f:
         f.write(json_response)
 
 
@@ -247,17 +288,19 @@ def doi():
 
 
 @doi.command()
-@click.argument("deposition-json",
-                type=click.Path(exists=True, file_okay=True, dir_okay=False),
-                )
+@click.argument(
+    "deposition-json",
+    type=click.Path(exists=True, file_okay=True, dir_okay=False),
+)
 @click.option(
-    "--full-url", "-f",
+    "--full-url",
+    "-f",
     is_flag=True,
     help="Return the full url of the latest draft's DOI",
 )
 def latest(
-        deposition_json: str,
-        full_url: bool,
+    deposition_json: str,
+    full_url: bool,
 ):
     """Print the doi of the latest published version of the given deposition.
 
@@ -273,17 +316,19 @@ def latest(
 
 
 @doi.command()
-@click.argument("deposition-json",
-                type=click.Path(exists=True, file_okay=True, dir_okay=False),
-                )
+@click.argument(
+    "deposition-json",
+    type=click.Path(exists=True, file_okay=True, dir_okay=False),
+)
 @click.option(
-    "--full-url", "-f",
+    "--full-url",
+    "-f",
     is_flag=True,
     help="Return the full url of the latest draft's DOI",
 )
 def latest_draft(
-        deposition_json: str,
-        full_url: bool,
+    deposition_json: str,
+    full_url: bool,
 ):
     """Print the DOI of the latest related deposition draft
 
@@ -298,4 +343,3 @@ def latest_draft(
         click.echo(draft.doi_url)
     else:
         click.echo(draft.doi)
-

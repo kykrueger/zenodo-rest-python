@@ -6,5 +6,7 @@ class NoDraftFound(Exception):
         self.deposition: Deposition = deposition
 
     def __str__(self):
-        return f"No drafts were found for the deposition with id: {self.deposition.id} " \
-                "make sure that a new version of the deposition exists."
+        return (
+            f"No drafts were found for the deposition with id: {self.deposition.id} "
+            "make sure that a new version of the deposition exists."
+        )
