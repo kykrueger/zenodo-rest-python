@@ -1,14 +1,15 @@
 import os
 from typing import Optional, TypeVar
 
-T = TypeVar("Deposition")
 
 import requests
 from pydantic import BaseModel
 
 from zenodo_rest.entities.deposition_file import DepositionFile
 from zenodo_rest.entities.metadata import Metadata
+from zenodo_rest import exceptions
 
+T = TypeVar("Deposition")
 
 class Deposition(BaseModel):
     created: str
@@ -52,7 +53,7 @@ class Deposition(BaseModel):
         deposition: Deposition = self.refresh(token)
         latest_url = deposition.links.get("latest", None)
         if latest_url is None:
-            return None
+            return deposition.refresh()
         latest_id = latest_url.rsplit("/", 1)[1]
         return Deposition.retrieve(latest_id)
 
@@ -60,7 +61,7 @@ class Deposition(BaseModel):
         deposition: Deposition = self.refresh(token)
         latest_draft_url = deposition.links.get("latest_draft", None)
         if latest_draft_url is None:
-            return None
+            raise exceptions.NoDraftFound(deposition.id)
 
         if token is None:
             token = os.getenv("ZENODO_TOKEN")

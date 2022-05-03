@@ -141,7 +141,6 @@ def update(
     """
 
     deposition: Deposition = Deposition.parse_file(deposition_json)
-    deposition = deposition.get_latest()
     deposition = deposition.get_latest_draft()
     metadata = Metadata.parse_file(metadata_file)
 
@@ -164,7 +163,6 @@ def delete(
     """
 
     deposition: Deposition = Deposition.parse_file(deposition_json)
-    deposition = deposition.get_latest()
     deposition = deposition.get_latest_draft()
     response: Response = actions.delete_remote(deposition.id)
     json_response = response.json(exclude_none=True, indent=4)
@@ -191,7 +189,6 @@ def upload_file(
     FILE the path to a file to be uploaded
     """
     deposition: Deposition = Deposition.parse_file(deposition_json)
-    deposition = deposition.get_latest()
     deposition = deposition.get_latest_draft()
     bucket_file: BucketFile = actions.upload_file(deposition.id, file)
     json_response = bucket_file.json(exclude_none=True, indent=4)
@@ -211,7 +208,6 @@ def delete_files(
     DEPOSITION_JSON json representation of the deposition to be uploaded to.
     """
     deposition: Deposition = Deposition.parse_file(deposition_json)
-    deposition = deposition.get_latest()
     deposition = deposition.get_latest_draft()
     responses = deposition.delete_files()
     click.echo(responses)
@@ -238,7 +234,6 @@ def publish(
     """
 
     deposition: Deposition = Deposition.parse_file(deposition_json)
-    deposition = deposition.get_latest()
     deposition = deposition.get_latest_draft()
     deposition = actions.publish(deposition.id)
     json_response = deposition.json(exclude_none=True, indent=4)
@@ -269,6 +264,7 @@ def new_version(deposition_json: str, dest: Optional[str] = None):
     """
 
     deposition: Deposition = Deposition.parse_file(deposition_json)
+    deposition = deposition.refresh()
     deposition = deposition.get_latest()
     deposition = actions.new_version(deposition.id)
     json_response = deposition.json(exclude_none=True, indent=4)
