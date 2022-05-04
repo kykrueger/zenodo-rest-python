@@ -1,84 +1,10 @@
 import os
-import tempfile
-from pathlib import Path
-from shutil import make_archive
 from typing import Optional
 
 import requests
 
-from zenodo_rest.entities.bucket_file import BucketFile
 from zenodo_rest.entities.deposition import Deposition
 from zenodo_rest.entities.metadata import Metadata
-
-
-def create(
-    metadata: Metadata = Metadata(),
-    prereserve_doi: Optional[bool] = None,
-    token: Optional[str] = None,
-    base_url: Optional[str] = None,
-) -> Deposition:
-    """
-    Create a deposition on the server, but do not publish it.
-    """
-    if token is None:
-        token = os.getenv("ZENODO_TOKEN")
-    if base_url is None:
-        base_url = os.getenv("ZENODO_URL")
-
-    if prereserve_doi is True:
-        metadata.prereserve_doi = True
-
-    header = {"Authorization": f"Bearer {token}"}
-    response = requests.post(
-        f"{base_url}/api/deposit/depositions",
-        json={"metadata": metadata.dict(exclude_none=True)},
-        headers=header,
-    )
-
-    response.raise_for_status()
-    return Deposition.parse_obj(response.json())
-
-
-def retrieve(
-    deposition_id: str, token: Optional[str] = None, base_url: Optional[str] = None
-) -> Deposition:
-    return Deposition.retrieve(deposition_id, token, base_url)
-
-
-def upload_file(
-    deposition_id: str, path_or_file: str, token: Optional[str] = None
-) -> BucketFile:
-    """
-
-    :param deposition_id:
-    :param path_or_file: pass a path to zip and upload or a file_path to upload
-    :param token:
-    :return:
-    """
-    deposition: Deposition = retrieve(deposition_id)
-    bucket_url = deposition.get_bucket()
-    if token is None:
-        token = os.getenv("ZENODO_TOKEN")
-    path = Path(path_or_file)
-    tempdir = None
-    if path.is_dir():
-        tempdir = tempfile.TemporaryDirectory()
-        zip_file = os.path.join(tempdir.name, path.stem)
-        make_archive(zip_file, "zip", root_dir=path.absolute())
-        path = Path(f"{zip_file}.zip")
-
-    header = {"Authorization": f"Bearer {token}"}
-    with open(path.absolute(), "rb") as fp:
-        r = requests.put(
-            f"{bucket_url}/{path.name}",
-            data=fp,
-            headers=header,
-        )
-
-    if tempdir is not None:
-        tempdir.cleanup()
-    r.raise_for_status()
-    return BucketFile.parse_obj(r.json())
 
 
 def update_metadata(

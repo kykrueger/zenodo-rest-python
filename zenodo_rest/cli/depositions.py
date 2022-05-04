@@ -40,6 +40,15 @@ def create(
     prereserve_doi: Optional[bool] = None,
     dest: Optional[str] = None,
 ):
+    """ Create a new deposition
+
+    :param metadata:
+    :param metadata_file:
+    :param prereserve_doi:
+    :type prereserve_doi: bool
+    :param dest:
+    :return:
+    """
 
     metadata_parsed: Metadata = Metadata()
     if isinstance(metadata, str):
@@ -50,7 +59,7 @@ def create(
     if metadata_file is not None:
         metadata_parsed = Metadata.parse_file(metadata_file)
 
-    deposition: Deposition = actions.create(metadata_parsed, prereserve_doi)
+    deposition: Deposition = Deposition.create(metadata_parsed, prereserve_doi)
     json_response = deposition.json(exclude_none=True, indent=4)
     click.echo(json_response)
     if dest is None:
@@ -62,19 +71,19 @@ def create(
 
 
 @depositions.command()
-@click.argument("deposition-id", type=click.INT)
+@click.argument("deposition-id", type=click.STRING)
 @click.option(
     "--dest",
     type=click.Path(),
     default=None,
     help="A file to write the resulting deposition json representation to.",
 )
-def retrieve(deposition_id: int, dest: Optional[str] = None):
+def retrieve(deposition_id: str, dest: Optional[str] = None):
     """Retrieve deposition by ID from server.
 
     DEPOSITION-ID is the id of the deposition to be fetched
     """
-    deposition: Deposition = actions.retrieve(deposition_id)
+    deposition: Deposition = Deposition.retrieve(deposition_id)
     json_response = deposition.json(exclude_none=True, indent=4)
     click.echo(json_response)
     if dest is None:
@@ -190,7 +199,7 @@ def upload_file(
     """
     deposition: Deposition = Deposition.parse_file(deposition_json)
     deposition = deposition.get_latest_draft()
-    bucket_file: BucketFile = actions.upload_file(deposition.id, file)
+    bucket_file: BucketFile = deposition.upload_file(deposition.id, file)
     json_response = bucket_file.json(exclude_none=True, indent=4)
     click.echo(json_response)
 
@@ -334,7 +343,7 @@ def latest_draft(
     deposition: Deposition = Deposition.parse_file(deposition_json)
     draft: Deposition = deposition.get_latest_draft()
     if draft is None:
-        raise NoDraftFound(deposition)
+        raise NoDraftFound(deposition.id)
     if full_url:
         click.echo(draft.doi_url)
     else:
