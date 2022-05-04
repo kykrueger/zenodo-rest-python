@@ -8,7 +8,7 @@ from zenodo_rest.entities import Deposition, Metadata
 from zenodo_rest.entities.bucket_file import BucketFile
 from zenodo_rest.exceptions import NoDraftFound
 
-from . import actions
+from zenodo_rest.depositions import actions
 
 
 @click.group()

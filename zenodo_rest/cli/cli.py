@@ -4,7 +4,7 @@ from getpass import getpass
 import click
 from dotenv import load_dotenv
 
-from zenodo_rest.depositions.depositions import depositions
+from .depositions import depositions
 
 
 @click.group()

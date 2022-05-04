@@ -37,7 +37,7 @@ setup(
     ],
     entry_points={
         "console_scripts": [
-            "zenodo-rest = zenodo_rest.cli:cli",
+            "zenodo-rest = zenodo_rest.cli.cli:cli",
         ],
     },
 )
