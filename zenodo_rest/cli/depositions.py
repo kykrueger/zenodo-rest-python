@@ -190,6 +190,7 @@ def upload_file(
 
     FILE the path to a file to be uploaded
     """
+
     deposition: Deposition = Deposition.parse_file(deposition_json)
     deposition = deposition.get_latest_draft()
     bucket_file: BucketFile = deposition.upload_file(deposition.id, file)
@@ -209,6 +210,7 @@ def delete_files(
 
     DEPOSITION_JSON json representation of the deposition to be uploaded to.
     """
+
     deposition: Deposition = Deposition.parse_file(deposition_json)
     deposition = deposition.get_latest_draft()
     responses = deposition.delete_files()
@@ -282,6 +284,7 @@ def new_version(deposition_json: str, dest: Optional[str] = None):
 @depositions.group()
 def doi():
     """Get DOIs related to depositions"""
+
     pass
 
 

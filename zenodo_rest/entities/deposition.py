@@ -87,6 +87,7 @@ class Deposition(BaseModel):
         :return: The deposition fetched by the remote
         :rtype: Deposition
         """
+
         if token is None:
             token = os.getenv("ZENODO_TOKEN")
         if base_url is None:
@@ -109,6 +110,7 @@ class Deposition(BaseModel):
         :return: Refreshes this deposition from the remote
         :rtype: Deposition
         """
+
         return Deposition.retrieve(self.id, token)
 
     def get_latest(self, token: Optional[str] = None) -> T:
@@ -135,6 +137,7 @@ class Deposition(BaseModel):
         :return: The latest draft related to this deposition, or a NoDraftFound exception.
         :rtype: Deposition
         """
+
         deposition: Deposition = self.refresh(token)
         latest_draft_url = deposition.links.get("latest_draft", None)
         if latest_draft_url is None:
@@ -205,6 +208,7 @@ class Deposition(BaseModel):
         :return: The HTTP response code of the deletion request.
         :rtype: int
         """
+
         if token is None:
             token = os.getenv("ZENODO_TOKEN")
         if base_url is None:
@@ -231,4 +235,5 @@ class Deposition(BaseModel):
         :return: A list of the HTTP response codes of the file deletion requests
         :rtype: list[int]
         """
+
         return [self.delete_file(file.id, token, base_url) for file in self.files]
