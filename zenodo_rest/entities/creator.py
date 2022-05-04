@@ -11,7 +11,7 @@ class Creator(BaseModel):
     gnd: Optional[str] = None
 
 
-class ContributorType(Enum):
+class ContributorType(str, Enum):
     contact_person = "ContactPerson"
     data_collector = "DataCollector"
     data_curator = "DataCurator"

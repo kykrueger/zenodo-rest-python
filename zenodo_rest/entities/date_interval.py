@@ -4,7 +4,7 @@ from typing import Optional
 from pydantic import BaseModel
 
 
-class DateIntervalType(Enum):
+class DateIntervalType(str, Enum):
     collected = "Collected"
     valid = "Valid"
     withdrawn = "Withdrawn"
