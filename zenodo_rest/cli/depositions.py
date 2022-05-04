@@ -41,13 +41,6 @@ def create(
     dest: Optional[str] = None,
 ):
     """ Create a new deposition
-
-    :param metadata:
-    :param metadata_file:
-    :param prereserve_doi:
-    :type prereserve_doi: bool
-    :param dest:
-    :return:
     """
 
     metadata_parsed: Metadata = Metadata()
