@@ -116,6 +116,7 @@ def new_version(
     """ Create a new version draft of a deposition
 
     Only one draft may exist at a time, this may fail when a draft already exists
+
     :param deposition_id: The id of the deposition to create a new version of.
     :type deposition_id: str
     :param token: Your zenodo token
