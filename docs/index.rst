@@ -22,6 +22,7 @@ Subpackages
    actions
    entities
    exceptions
+   modules
 
 
 Indices and tables
