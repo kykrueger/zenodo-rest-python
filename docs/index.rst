@@ -6,32 +6,23 @@ zenodo-rest package
    :undoc-members:
    :show-inheritance:
 
-Subpackages
+CLI
 -----------
 
 .. toctree::
    :maxdepth: 4
 
-   zenodo_rest.depositions
-   zenodo_rest.entities
+   CLI
 
-Submodules
+Subpackages
 ----------
+.. toctree::
+   :maxdepth: 4
 
-zenodo\_rest.exceptions
-------------------------------
+   actions
+   entities
+   exceptions
 
-.. automodule:: zenodo_rest.exceptions
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-CLI
-===
-
-.. click:: zenodo_rest.cli.cli:cli
-   :prog: zenodo-rest
-   :nested: full
 
 Indices and tables
 ==================

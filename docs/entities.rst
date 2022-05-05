@@ -1,4 +1,4 @@
-zenodo\_rest.entities
+entities
 =============================
 
 .. automodule:: zenodo_rest.entities
