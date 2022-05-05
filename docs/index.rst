@@ -26,6 +26,13 @@ zenodo\_rest.exceptions
    :undoc-members:
    :show-inheritance:
 
+CLI
+===
+
+.. click:: zenodo_rest.cli.cli:cli
+   :prog: zenodo-rest
+   :nested: full
+
 Indices and tables
 ==================
 
