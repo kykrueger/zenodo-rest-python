@@ -10,7 +10,7 @@ CLI
 -----------
 
 .. toctree::
-   :maxdepth: 4
+   :maxdepth: 5
 
    CLI
 
