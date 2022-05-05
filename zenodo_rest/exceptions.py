@@ -1,4 +1,3 @@
-
 class NoDraftFound(Exception):
     def __init__(self, deposition_id: str):
         self.deposition_id: str = deposition_id

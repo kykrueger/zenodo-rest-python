@@ -1,9 +1,10 @@
 zenodo-rest package
 ===========
 
-.. toctree::
-   :maxdepth: 2
-   :caption: Contents:
+.. automodule:: zenodo_rest
+   :members:
+   :undoc-members:
+   :show-inheritance:
 
 Subpackages
 -----------
@@ -17,23 +18,13 @@ Subpackages
 Submodules
 ----------
 
-zenodo\_rest.exceptions module
+zenodo\_rest.exceptions
 ------------------------------
 
 .. automodule:: zenodo_rest.exceptions
    :members:
    :undoc-members:
    :show-inheritance:
-
-Module contents
----------------
-
-.. automodule:: zenodo_rest
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-
 
 Indices and tables
 ==================

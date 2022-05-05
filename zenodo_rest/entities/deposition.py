@@ -34,12 +34,12 @@ class Deposition(BaseModel):
 
     @staticmethod
     def create(
-            metadata: Metadata = Metadata(),
-            prereserve_doi: Optional[bool] = None,
-            token: Optional[str] = None,
-            base_url: Optional[str] = None,
+        metadata: Metadata = None,
+        prereserve_doi: Optional[bool] = None,
+        token: Optional[str] = None,
+        base_url: Optional[str] = None,
     ) -> T:
-        """ Create a deposition on the server, but do not publish it.
+        """Create a deposition on the server, but do not publish it.
 
         :param metadata: The metadata to be used when creating the deposition.
             (defaults to an empty Metadata object with placeholders in required fields)
@@ -54,6 +54,8 @@ class Deposition(BaseModel):
         :rtype: Deposition
         """
 
+        if metadata is None:
+            metadata = Metadata()
         if token is None:
             token = os.getenv("ZENODO_TOKEN")
         if base_url is None:
@@ -76,7 +78,7 @@ class Deposition(BaseModel):
     def retrieve(
         deposition_id: str, token: Optional[str] = None, base_url: Optional[str] = None
     ) -> T:
-        """ Fetch a deposition by id from the remote
+        """Fetch a deposition by id from the remote
 
         :param deposition_id:
         :type deposition_id: str
@@ -103,7 +105,7 @@ class Deposition(BaseModel):
         return Deposition.parse_obj(response.json())
 
     def refresh(self, token: Optional[str] = None) -> T:
-        """ Refresh this deposition
+        """Refresh this deposition
 
         :param token: Your zenodo token
         :type token: Optional[str]
@@ -114,7 +116,7 @@ class Deposition(BaseModel):
         return Deposition.retrieve(self.id, token)
 
     def get_latest(self, token: Optional[str] = None) -> T:
-        """ Gets the latest published version of this deposition
+        """Gets the latest published version of this deposition
 
         :param token: Your zenodo token
         :type token: Optional[str]
@@ -130,7 +132,7 @@ class Deposition(BaseModel):
         return Deposition.retrieve(latest_id, token)
 
     def get_latest_draft(self, token: Optional[str] = None) -> T:
-        """ Retrieve the latest draft related to this deposition
+        """Retrieve the latest draft related to this deposition
 
         :param token: Your zenodo token
         :type token: Optional[str]
@@ -157,10 +159,8 @@ class Deposition(BaseModel):
     def get_bucket(self) -> str:
         return self.links.get("bucket")
 
-    def upload_file(
-            self, path_or_file: str, token: Optional[str] = None
-    ) -> BucketFile:
-        """ Upload or overwrite a file or path attachment for a deposition
+    def upload_file(self, path_or_file: str, token: Optional[str] = None) -> BucketFile:
+        """Upload or overwrite a file or path attachment for a deposition
 
         :param path_or_file: A path to zip and upload or a file_path to upload
         :type path_or_file: str
@@ -194,8 +194,10 @@ class Deposition(BaseModel):
         r.raise_for_status()
         return BucketFile.parse_obj(r.json())
 
-    def delete_file(self, file_id: str, token: Optional[str] = None, base_url: Optional[str] = None) -> int:
-        """ Delete a file from this deposition if it is not yet published
+    def delete_file(
+        self, file_id: str, token: Optional[str] = None, base_url: Optional[str] = None
+    ) -> int:
+        """Delete a file from this deposition if it is not yet published
 
         :param file_id: The id of the file to be deleted, which is stored in this deposition's bucket.
         :type  file_id: str
@@ -223,8 +225,10 @@ class Deposition(BaseModel):
         response.raise_for_status()
         return response.status_code
 
-    def delete_files(self, token: Optional[str] = None, base_url: Optional[str] = None) -> list[int]:
-        """ Delete all files from this deposition if it is not yet published
+    def delete_files(
+        self, token: Optional[str] = None, base_url: Optional[str] = None
+    ) -> list[int]:
+        """Delete all files from this deposition if it is not yet published
 
         :param token: Your zenodo token
         :type token: Optional[str]

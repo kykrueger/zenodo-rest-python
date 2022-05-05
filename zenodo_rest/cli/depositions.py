@@ -40,8 +40,7 @@ def create(
     prereserve_doi: Optional[bool] = None,
     dest: Optional[str] = None,
 ):
-    """ Create a new deposition
-    """
+    """Create a new deposition"""
 
     metadata_parsed: Metadata = Metadata()
     if isinstance(metadata, str):

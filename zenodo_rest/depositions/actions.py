@@ -13,7 +13,7 @@ def update_metadata(
     token: Optional[str] = None,
     base_url: Optional[str] = None,
 ) -> Deposition:
-    """ Update the metadata of a not yet published deposition
+    """Update the metadata of a not yet published deposition
 
     :param deposition_id: The id of the deposition to update
     :type deposition_id: str
@@ -47,7 +47,7 @@ def update_metadata(
 def delete_remote(
     deposition_id: str, token: Optional[str] = None, base_url: Optional[str] = None
 ) -> requests.Response:
-    """ Delete a not yet published draft of a deposition
+    """Delete a not yet published draft of a deposition
 
     :param deposition_id: The id of the depsition to be deleted
     :type deposition_id: str
@@ -80,7 +80,7 @@ def delete_remote(
 def publish(
     deposition_id: str, token: Optional[str] = None, base_url: Optional[str] = None
 ) -> Deposition:
-    """ Publish a deposition
+    """Publish a deposition
 
     :param deposition_id: The id of the deposition to be published
     :type deposition_id: str
@@ -113,7 +113,7 @@ def publish(
 def new_version(
     deposition_id: str, token: Optional[str] = None, base_url: Optional[str] = None
 ) -> Deposition:
-    """ Create a new version draft of a deposition
+    """Create a new version draft of a deposition
 
     Only one draft may exist at a time, this may fail when a draft already exists
 
@@ -155,7 +155,7 @@ def search(
     all_versions: Optional[bool] = None,
     token: Optional[str] = None,
 ) -> list[Deposition]:
-    """ Search for depositions
+    """Search for depositions
 
     :param query: An elasticsearch formatted query
     :type query: Optional[str]
