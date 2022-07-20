@@ -192,7 +192,7 @@ def upload_file(
 
     deposition: Deposition = Deposition.parse_file(deposition_json)
     deposition = deposition.get_latest_draft()
-    bucket_file: BucketFile = deposition.upload_file(deposition.id, file)
+    bucket_file: BucketFile = deposition.upload_file(file)
     json_response = bucket_file.json(exclude_none=True, indent=4)
     click.echo(json_response)
 

@@ -1,10 +1,14 @@
 import os
 from typing import Optional
+import logging
 
 import requests
 
 from zenodo_rest.entities.deposition import Deposition
 from zenodo_rest.entities.metadata import Metadata
+
+logging.basicConfig()
+logger = logging.getLogger()
 
 
 def update_metadata(
@@ -78,7 +82,10 @@ def delete_remote(
 
 
 def publish(
-    deposition_id: str, token: Optional[str] = None, base_url: Optional[str] = None
+    deposition_id: str,
+    token: Optional[str] = None,
+    base_url: Optional[str] = None,
+    retries: int = 0,
 ) -> Deposition:
     """Publish a deposition
 
@@ -105,6 +112,33 @@ def publish(
         f"{base_url}/api/deposit/depositions/{deposition_id}/actions/publish",
         headers=header,
     )
+
+    # Zenodo returns > 500 for internal server errors
+    # This includes timeouts where it is possible that a success just wasn't returned
+    if response.status_code >= 500:
+        logger.warning(f"Zenodo returned an internal error: {response.status_code}.")
+        logger.info(
+            "It can be that only a timeout occured, and the deposition was published."
+        )
+        logger.warning(
+            "Checking if the deposition was published despite Zenodo's internal error."
+        )
+        deposition = Deposition.retrieve(deposition_id)
+        if deposition.published:
+            logger.info(f"Deposition {deposition_id} was published")
+            return deposition
+        elif retries > 0:
+            logger.warning(f"Retries remaining: {retries}")
+            logger.warning(f"Deposition {deposition_id} was not published, retrying")
+            retries -= 1
+            return publish(
+                deposition_id=deposition_id,
+                token=token,
+                base_url=base_url,
+                retries=retries,
+            )
+        else:
+            logger.error(f"Deposition {deposition_id} was not published")
 
     response.raise_for_status()
     return Deposition.parse_obj(response.json())
