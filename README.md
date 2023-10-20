@@ -1,3 +1,6 @@
+# Deprecated
+This wrapper was broken by the major Zenodo release of Oct 2023.
+
 # zenodo-rest
 
 A python wrapper of Zenodo's REST API for python and the command line.
